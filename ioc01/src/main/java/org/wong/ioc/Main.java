@@ -15,12 +15,23 @@ public class Main {
         ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
 
         // Get user instance.
+        /*
         User u1 = (User)ctx.getBean("user");
         User u2 = ctx.getBean("user", User.class);
-        User u3 = ctx.getBean(User.class);
+        User u3 = ctx.getBean(User.class);  // This will give error because need uniqueBeanId
         System.out.println("u1 = " + u1);
         System.out.println("u2 = " + u2);
         System.out.println("u3 = " + u3);
+        */
+
+        User user1 = ctx.getBean("user", User.class);
+        System.out.println("user1 = " + user1);
+
+        User user2 = ctx.getBean("user2", User.class);
+        System.out.println("user2 = " + user2);
+
+        User user3 = ctx.getBean("user3", User.class);
+        System.out.println("user3 = " + user3);
 
 //        // Another way to do what ClassPathXmlApplicationContext does.
 //        FileSystemXmlApplicationContext ftx = new FileSystemXmlApplicationContext(<ABSOLUTE PATH>)

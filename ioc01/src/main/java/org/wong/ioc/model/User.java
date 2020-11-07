@@ -9,8 +9,22 @@ public class User {
         System.out.println("----------- init User -----------");
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", address='" + address + '\'' +
+                ", id=" + id +
+                '}';
+    }
+
     public String getUsername() {
         return username;
+    }
+
+    public User(String username, Integer id) {
+        this.username = username;
+        this.id = id;
     }
 
     public void setUsername(String username) {
