@@ -543,6 +543,102 @@ public class JavaConfigTest {
     }
 }
 ```
+## 10. 自动化配置
+
+ - 可以通过Java配置 或 xml配置 来实现。
+ - will automatically scan for all class with @Service.etc annotation. No need to manually add each one.
+
+### @Service
+ - 例如我有一个UserService，我希望在自动化扫描时，这个类能够自动注册到Spring容器中去，那么可以给该类添加一个@Service，作为一个标记。
+ - 和@Service 注解功能类似的注解，一共有四个：
+ 	 - @Component
+ 	 - @Repository
+ 	 - @Service
+ 	 - @Controller
+ - 这四个中，另外三个都是基于 @Component 
+ - 做出来的，而且从目前的源码来看，功能也是一致的
+ - 那么为什么要搞三个呢？主要是为了在不同的类上面添加时方便。
+	 - 在Service 层上，添加注解时，使用@Service
+	 - 在Dao 层，添加注解时，使用@Repository
+	 - 在Controller 层，添加注解时，使用@Controller
+	 - 在其他组件上添加注解时，使用@Component
+
+### 例子（Java配置自动扫描）
+ - Create UserService
+
+```java
+package org.wong.ioc.service;
+
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class UserService {
+    public List<String> getAllUsers(){
+        List<String> users = new ArrayList<String>();
+        for(int i=0; i<10; i++){
+            users.add("wong:" + i);
+        }
+        return users;
+    }
+}
+```
+
+ - In JavaConfig, add @Component Scan on top of class
+```java
+@ComponentScan(basePackages = "org.wong.ioc.service")	// ADD THIS LINE
+public class JavaConfig {
+```
+
+ - Test it:
+```java
+UserService userService = ctx.getBean(UserService.class);
+List<String> allUsers = userService.getAllUsers();
+System.out.println("allUsers = " + allUsers);
+```
+
+### 问题
+
+ - Bean 的名字叫什么？默认情况下，Bean的名字是类名首字母小写。
+ 	 - 例如上面的UserService，它的实例名，默认就是UserService。
+ 	 - 如果开发者想要自定义名字，就直接在@Service 注解中添加即可
+```java
+@Service("us")
+```
+
+ - 有几种扫描方式？上面的配置，我们是按照包的位置来扫描的。
+ - 也就是说，Bean 必须放在指定的扫描位置，否则，即使你有@Service注解，也扫描不到。
+ - 除了按照包的位置来扫描，还有另外一种方式，就是根据注解来扫描。例如如下配置：
+```java
+@Configuration
+@ComponentScan(basePackages = "org.javaboy.javaconfig", useDefaultFilters = true, excludeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Controller.class)}) 
+public class JavaConfig {} 
+```
+ - 这个配置表示扫描org.javaboy.javaconfig 下的所有Bean，但是除了Controller
+ - useDefaultFilters = True means scan all types (@service, @component.etc), = False means don't scan any.
+ 	 - you can set useDefaultFilters to False, and then add an includeFilters, or the opposite with excludeFilters.
+
+### XML 配置自动扫描
+ - in applicationContext.xml, insert this:
+```xml
+<context:component-scan base-package="org.wong.ioc.service" use-default-filters="false">
+    <context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+</context:component-scan>
+```
+ - This will scan org.wong.ioc.service package and inside it, scan for @Service.
+
+ - To test, create a new class, "XMLTest":
+```java
+ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+
+UserService userService = ctx.getBean(UserService.class);
+System.out.println(userService.getAllUsers());
+```
+```
+[wong:0, wong:1, wong:2, wong:3, wong:4, wong:5, wong:6, wong:7, wong:8, wong:9]
+```
 
 
 
