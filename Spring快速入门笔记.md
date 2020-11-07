@@ -486,4 +486,64 @@ private Properties info;
 user5 = User{username='wong5', address='cats and hobbies street', id=5, cat=Cat{name='cat1', age=9}, cats=[Cat{name='cat1', age=9}, Cat{name='cat2', age=10}], hobbies=[Basketball, Football], details={gender=male, age=99}, info={phone=123456}}
 ```
 
+## 09.Java 配置 (Java-Based Configuration)
+
+在Spring 中，想要将一个Bean 注册到Spring 容器中，整体上来说，有三种不同的方式：
+ - XML 注入，如前文所说
+ - Java 配置（通过Java 代码将  Bean 注册到Spring 容器中）
+ - 自动化扫描
+
+ - First, create a new package, "javaconfig" and create a new class inside called "SayHello":
+```java
+package org.wong.ioc.javaconfig;
+
+public class SayHello {
+    public String sayHello(String name){
+        return "hello " + name;
+    }
+}
+```
+
+ - Then, create a class "JavaConfig":
+```java
+package org.wong.ioc.javaconfig;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/*
+ * @Configuration 注解表示这是一个Java配置类，配置类的作用类似于 applicationContext.xml
+ */
+@Configuration
+public class JavaConfig {
+    @Bean("sh")
+    SayHello sayHello(){
+        return new SayHello();
+    }
+}
+```
+ - This is similar to what applicationContext.xml does. 
+ - Annotating a class with the @Configuration indicates that the class can be **used by the Spring IoC container as a source of bean definitions.**
+ -  The @Bean annotation tells Spring that a method annotated with @Bean will **return an object that should be registered as a bean in the Spring application context.**
+ - Source: https://www.tutorialspoint.com/spring/spring_java_based_configuration.htm
+
+ - To test, create a JavaConfigTest class:
+```java
+package org.wong.ioc;
+
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.wong.ioc.javaconfig.JavaConfig;
+import org.wong.ioc.javaconfig.SayHello;
+
+public class JavaConfigTest {
+    public static void main(String[] args) {
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(JavaConfig.class);
+        SayHello sayHello = ctx.getBean("sh", SayHello.class); // 这个是根据 JavaConfig class里的方法名字.
+        System.out.println(sayHello.sayHello("Wong"));
+    }
+}
+```
+
+
+
 
