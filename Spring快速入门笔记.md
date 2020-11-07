@@ -640,6 +640,55 @@ System.out.println(userService.getAllUsers());
 [wong:0, wong:1, wong:2, wong:3, wong:4, wong:5, wong:6, wong:7, wong:8, wong:9]
 ```
 
+## 11. 对象注入
+
+自动扫描的对象注入有三种方法：
+1. @Autowired
+2. @Resources
+3. @Injected
+
+ - @Autowired 是**根据类型去查找**，然后赋值(fu4 zhi2, assignment)，这就有一个要求，**这个类型只可以有一个对象**，否则就会报错。
+ - @Resources 是**根据名称去查找**，默认情况下，定义的变量名，就是查找的名称，当然开发者也可以在@Resources 注解中手动指定。
+ - 所以，如果一个类存在多个实例，那么就应该使用@Resources去注入
+ 	 - 如果非得使用@Autowired，也是可以的，此时需要配合另外一个注解，@Qualifier，在@Qualifier中可以指定变量名，两个一起用（@Qualifier 和@Autowired）就可以实现通过变量名查找到变量。
+
+### 例子
+
+ - Create Service called "UserDao.java":
+```java
+package org.wong.ioc.javaconfig;
+
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class UserDao {
+    public String hello(){
+        return "user dao saying hello";
+    }
+}
+```
+
+ - Modify UserService to add UserDao with @Autowired.
+```java
+@Service
+public class UserService {	
+    @Autowired 				// ADD THIS LINE
+    UserDao userDao;		// ADD THIS LINE
+
+    public List<String> getAllUsers(){
+        String hello = userDao.hello();				// ADD THIS LINE
+        System.out.println("hello = " + hello);		// ADD THIS LINE
+```
+
+ - Modify JavaConfig to scan for UserDao.
+```java
+@ComponentScan(basePackages = "org.wong.ioc")
+```
+
+ - output
+```
+hello = user dao saying hello
+```
 
 
 
