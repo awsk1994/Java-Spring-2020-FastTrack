@@ -212,6 +212,7 @@ System.out.println("user2 = " + user2);
 ```
 
 ### p名称空间注入
+
 ```xml
 <bean class="org.wong.ioc.model.User" id="user3" p:username="wong3" p:id="3"></bean>
 ```
@@ -222,12 +223,116 @@ System.out.println("user3 = " + user3);
 ```
 user3 = User{username='wong3', address='null', id=3}
 ```
-### 外部Bean的注入
-
 
 ### TODO
 
 There are more configurations. Ref, Type.etc that you can insert into beans
 
 https://blog.csdn.net/qq_20008183/article/details/86624209
+
+## 07. 工厂方法注入／外部Bean的注入
+
+ - We need to first use some sort of builder method.
+
+ - Import okhttp3 dependency in pom.xml:
+
+```xml
+<dependency>
+    <groupId>com.squareup.okhttp3</groupId>
+    <artifactId>okhttp</artifactId>
+    <version>4.7.2</version>
+</dependency>
+```
+
+ - Create OkHttpTest.java:
+ ```java
+ package org.wong.ioc;
+
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+
+public class OkHttpTest {
+    public static void main(String[] args) {
+        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
+        Request request = new Request.Builder()
+            .get()
+            .url("http://www.baidu.com")
+            .build();
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                System.out.println("Err = " + e.getMessage());
+            }
+
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                System.out.println("Body = " + response.body().string());
+            }
+        });
+    }
+}
+```
+
+### i. 静态工厂注入
+
+ - Create OkHttpStaticFactory.java:
+ ```java
+package org.wong.ioc;
+
+import okhttp3.OkHttpClient;
+
+public class OkHttpStaticFactory {
+    private static OkHttpClient okHttpClient;
+    public static OkHttpClient getInstance(){
+        if(okHttpClient == null){
+            okHttpClient = new OkHttpClient.Builder().build();
+        }
+        return okHttpClient;
+    };
+};
+```
+
+ - We can add this to bean (applicationContext.xml):
+ ```xml
+<bean class="org.wong.ioc.OkHttpStaticFactory" factory-method="getInstance" id="okHttpClient"/>
+```
+
+ - In OkHttpTest.java, we can create okHttpClient using ctx.
+ ```java
+//        // The normal way of creating okHttpClient
+//        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
+        // Creating okHttpClient via ctx.
+        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+        OkHttpClient okHttpClient = ctx.getBean("okHttpClient", OkHttpClient.class);
+```
+
+
+
+### ii. 实例工厂注入
+
+ - Create OkHttpFactory.java:
+```java
+package org.wong.ioc;
+
+import okhttp3.OkHttpClient;
+
+public class OkHttpFactory {
+    private OkHttpClient okHttpClient;
+    public OkHttpClient getInstance(){
+        if(okHttpClient == null){
+            okHttpClient = new OkHttpClient.Builder().build();
+        }
+        return okHttpClient;
+    }
+}
+```
+
+ - Notice that OkHttpFactory is not static, and therefore to call in beans, we need to first instantiate OkHttpFactory and then call getInstance() to get okHttpClient.
+ - in applicationContext.xml: 
+```xml
+<!--    <bean class="org.wong.ioc.OkHttpStaticFactory" factory-method="getInstance" id="okHttpClient"/>-->
+<bean class="org.wong.ioc.OkHttpFactory" id="okHttpFactory"/>
+<bean class="okhttp3.OkHttpClient" factory-bean="okHttpFactory" factory-method="getInstance" id="okHttpClient"/>
+```
 

@@ -17,5 +17,9 @@
         <property name="address" value="abc street"/>
     </bean>
 
-    <bean class="org.wong.ioc.model.User" id="user3" p:username="wong3" p:id="3"></bean>
+    <bean class="org.wong.ioc.model.User" id="user3" p:username="wong3" p:id="3"/>
+
+<!--    <bean class="org.wong.ioc.OkHttpStaticFactory" factory-method="getInstance" id="okHttpClient"/>-->
+    <bean class="org.wong.ioc.OkHttpFactory" id="okHttpFactory"/>
+    <bean class="okhttp3.OkHttpClient" factory-bean="okHttpFactory" factory-method="getInstance" id="okHttpClient"/>
 </beans>
