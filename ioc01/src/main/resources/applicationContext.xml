@@ -22,4 +22,56 @@
 <!--    <bean class="org.wong.ioc.OkHttpStaticFactory" factory-method="getInstance" id="okHttpClient"/>-->
     <bean class="org.wong.ioc.OkHttpFactory" id="okHttpFactory"/>
     <bean class="okhttp3.OkHttpClient" factory-bean="okHttpFactory" factory-method="getInstance" id="okHttpClient"/>
+
+    <bean class="org.wong.ioc.model.User" id="user4">
+        <property name="username" value="wong4"/>
+        <property name="id" value="4"/>
+        <property name="address" value="cat street"/>
+        <property name="cat" ref="cat"/>
+    </bean>
+
+    <bean class="org.wong.ioc.model.Cat" id="cat">
+        <property name="name" value="cat1"/>
+        <property name="age" value="9"/>
+    </bean>
+
+    <bean class="org.wong.ioc.model.User" id="user5">
+        <property name="username" value="wong5"/>
+        <property name="id" value="5"/>
+        <property name="address" value="cats and hobbies street"/>
+        <property name="cat" ref="cat"/>
+        <property name="cats">
+            <array>
+                <!-- method number 1, bean reference -->
+                <ref bean="cat"/>
+                <!-- method number 2, create new cat here. -->
+                <bean class="org.wong.ioc.model.Cat" id="cat2">
+                    <property name="name" value="cat2"/>
+                    <property name="age" value="10"/>
+                </bean>
+            </array>
+        </property>
+
+        <property name="hobbies">
+            <list>
+                <value>Basketball</value>
+                <value>Football</value>
+            </list>
+        </property>
+
+        <property name="details">
+            <map>
+                <entry key="gender" value="male"/>
+                <entry key="age" value="99"/>
+            </map>
+        </property>
+
+        <property name="info">
+            <props>
+                <prop key="phone">123456</prop>
+            </props>
+        </property>
+    </bean>
+
+
 </beans>

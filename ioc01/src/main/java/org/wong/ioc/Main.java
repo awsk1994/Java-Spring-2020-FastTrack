@@ -33,6 +33,13 @@ public class Main {
         User user3 = ctx.getBean("user3", User.class);
         System.out.println("user3 = " + user3);
 
+        User user4 = ctx.getBean("user4", User.class);
+        System.out.println("user4 = " + user4);
+
+        User user5 = ctx.getBean("user5", User.class);
+        System.out.println("user5 = " + user5);
+
+
 //        // Another way to do what ClassPathXmlApplicationContext does.
 //        FileSystemXmlApplicationContext ftx = new FileSystemXmlApplicationContext(<ABSOLUTE PATH>)
     }

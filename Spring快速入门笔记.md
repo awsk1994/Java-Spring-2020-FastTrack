@@ -198,7 +198,7 @@ user2 = User{username='wong2', address='null', id=2}
 
 ### set方法注入
 ```xml
-<!-- Note: We don't have constructor with 3 arg -->
+<!-- Note: We don't have constructor with 3 arg, but require setter-->
 <bean class="org.wong.ioc.model.User" id="user2">
     <property name="username" value="wong2"/>
     <property name="id" value="2"/>
@@ -214,6 +214,7 @@ System.out.println("user2 = " + user2);
 ### p名称空间注入
 
 ```xml
+<!-- require setter -->
 <bean class="org.wong.ioc.model.User" id="user3" p:username="wong3" p:id="3"></bean>
 ```
 ```java
@@ -335,4 +336,154 @@ public class OkHttpFactory {
 <bean class="org.wong.ioc.OkHttpFactory" id="okHttpFactory"/>
 <bean class="okhttp3.OkHttpClient" factory-bean="okHttpFactory" factory-method="getInstance" id="okHttpClient"/>
 ```
+
+## 08.复杂属性注入
+
+ - Create a Cat.java and add cat attribute to User.java:
+```java
+package org.wong.ioc.model;
+
+public class Cat {
+    private String name;
+    private int age;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    @Override
+    public String toString() {
+        return "Cat{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                '}';
+    }
+}
+```
+```java
+private Cat cat;
+public void setCat(Cat cat) {
+    this.cat = cat;
+}
+```
+
+### i. 对象注入
+
+```xml
+<bean class="org.wong.ioc.model.User" id="user4">
+    <property name="username" value="wong4"/>
+    <property name="id" value="4"/>
+    <property name="address" value="cat street"/>
+    <property name="cat" ref="cat"/>
+</bean>
+
+<bean class="org.wong.ioc.model.Cat" id="cat">
+    <property name="name" value="cat1"/>
+    <property name="age" value="9"/>
+</bean>
+```
+```java
+User user4 = ctx.getBean("user4", User.class);
+System.out.println("user4 = " + user4);
+```
+```
+user4 = User{username='wong4', address='cat street', id=4, cat=Cat{name='cat1', age=9}}
+```
+
+### ii. 数组注入
+
+ - Add Cat[] cats and String[] hobbies into User.java
+```java
+private Cat[] cats;
+private String[] hobbies;
+...
+@Override
+public String toString() {
+    return "User{" +
+            "username='" + username + '\'' +
+            ", address='" + address + '\'' +
+            ", id=" + id +
+            ", cat=" + cat +
+            ", cats=" + Arrays.toString(cats) +
+            ", hobbies=" + Arrays.toString(hobbies) +
+            '}';
+}
+```
+
+ - Add to bean (applicationContext.xml)
+```xml
+<bean class="org.wong.ioc.model.User" id="user5">
+    <property name="username" value="wong5"/>
+    <property name="id" value="5"/>
+    <property name="address" value="cats and hobbies street"/>
+    <property name="cat" ref="cat"/>
+    <property name="cats">
+        <array>
+            <!-- method number 1, bean reference -->
+            <ref bean="cat"/>
+            <!-- method number 2, create new cat here. -->
+            <bean class="org.wong.ioc.model.Cat" id="cat2">
+                <property name="name" value="cat2"/>
+                <property name="age" value="10"/>
+            </bean>
+        </array>
+    </property>
+    <property name="hobbies">
+        <list>
+            <value>Basketball</value>
+            <value>Football</value>
+        </list>
+    </property>
+</bean>
+```
+
+```java
+User user5 = ctx.getBean("user5", User.class);
+System.out.println("user5 = " + user5);
+```
+```
+user5 = User{username='wong5', address='cats and hobbies street', id=5, cat=Cat{name='cat1', age=9}, cats=[Cat{name='cat1', age=9}, Cat{name='cat2', age=10}], hobbies=[Basketball, Football]}
+```
+
+### iii. Map注入 + Properties注入
+
+In User.java:
+```java
+private Map<String, Object> details;
+private Properties info;
+// update toString()
+// set up getters + setters
+```
+
+ - Modify user5 in bean (applicationContext.xml)
+```xml
+<property name="details">
+    <map>
+        <entry key="gender" value="male"/>
+        <entry key="age" value="99"/>
+    </map>
+</property>
+
+<property name="info">
+    <props>
+        <prop key="phone">123456</prop>
+    </props>
+</property>
+```
+```
+user5 = User{username='wong5', address='cats and hobbies street', id=5, cat=Cat{name='cat1', age=9}, cats=[Cat{name='cat1', age=9}, Cat{name='cat2', age=10}], hobbies=[Basketball, Football], details={gender=male, age=99}, info={phone=123456}}
+```
+
 
