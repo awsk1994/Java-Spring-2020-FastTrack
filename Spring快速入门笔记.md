@@ -690,5 +690,115 @@ public class UserService {
 hello = user dao saying hello
 ```
 
+## 12.条件配置
+ - 条件注解就是在满足**某一个条件的情况下，生效的配置**。
+
+ - Create "ShowCmd" Interface:
+```java
+package org.wong.ioc;
+
+public interface ShowCmd {
+    String showCmd();
+}
+```
+
+ - Create "MacShowCmd" and "WindowsShowCmd" class, which implements ShowCmd. These will become the beans.
+```java
+package org.wong.ioc;
+
+public class WindowsShowCmd implements ShowCmd {
+    public String showCmd(){
+        return "dir";
+    }
+}
+```
+```java
+package org.wong.ioc;
+
+public class MacShowCmd implements ShowCmd {
+    public String showCmd() {
+        return "ls";
+    }
+}
+```
+
+ - Create "MacCondition" and "WindowsCondition", which implements Condition. These will be the condition to choose a particular bean over another. We do this by finding the environment and seeing if "win" or "mac" is in the environment name.
+```java
+package org.wong.ioc;
+
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.core.type.AnnotatedTypeMetadata;
+
+public class WindowsCondition implements Condition {
+    public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata){
+        String osName = conditionContext.getEnvironment().getProperty("os.name");
+        return osName.toLowerCase().contains("win");
+    }
+}
+```
+```java
+package org.wong.ioc;
+
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.core.type.AnnotatedTypeMetadata;
+
+public class MacCondition implements Condition {
+    public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata){
+        String osName = conditionContext.getEnvironment().getProperty("os.name");
+        return osName.toLowerCase().contains("mac");
+    }
+}
+```
+
+
+ - Set up JavaConfig class: 2 Beans with same name + Condition.
+```java
+package org.wong.ioc;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class JavaConfig {
+    @Bean("cmd")        // same name to allow @Condition to check which one to use.
+    @Conditional(WindowsCondition.class)
+    ShowCmd winCmd(){
+        return new WindowsShowCmd();
+    }
+
+    @Bean("cmd")        // same name to allow @Condition to check which one to use.
+    @Conditional(MacCondition.class)
+    ShowCmd macCmd(){
+        return new MacShowCmd();
+    }
+}
+```
+
+ - Note that both Beans have the same name, "cmd" so we have to select between one of the two beans. We select by testing the condition in @Condition (MacCondition.class or WindowsCondition.class)
+
+ - Test:
+```java
+package org.wong.ioc;
+
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class Main {
+    public static void main(String[] args) {
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(JavaConfig.class);
+        ShowCmd cmd = (ShowCmd) ctx.getBean("cmd");
+        String s = cmd.showCmd();
+        System.out.println("cmd = " + s);
+    }
+}
+```
+```
+cmd = ls
+```
+
+
+
 
 
