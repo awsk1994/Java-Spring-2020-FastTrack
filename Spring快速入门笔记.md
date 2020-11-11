@@ -798,6 +798,61 @@ public class Main {
 cmd = ls
 ```
 
+## 13. Profile环境切换
+
+开发中，如何在开发／测试环境之间进行快速切换？Spring 中提供了Profile来解决这个问题。
+
+
+```java
+public class DataSource {
+    private String url;
+    private String username;
+    private String password;
+
+    // Getter + Setter + toString()
+}
+```
+
+```java
+    @Bean
+    @Profile("dev")
+    DataSource devOps() {
+        DataSource ds = new DataSource();
+        ds.setUrl("abc");
+        ds.setUsername("do_uname");
+        ds.setPassword("do_uname_pw");
+        return ds;
+    }
+
+    @Bean
+    @Profile("prod")
+    DataSource prodOps() {
+        DataSource ds = new DataSource();
+        ds.setUrl("abc_prod");
+        ds.setUsername("do_uname_prod");
+        ds.setPassword("do_uname_pw_prod");
+        return ds;
+    }
+```
+
+```java
+package org.wong.ioc;
+
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class TestProfile {
+    public static void main(String[] args) {
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.getEnvironment().setActiveProfiles("dev");
+        ctx.register(JavaConfig.class);
+        ctx.refresh();
+        System.out.println(ctx.getBean(DataSource.class));
+    }
+}
+```
+```
+DataSource{url='abc', username='do_uname', password='do_uname_pw'}
+```
 
 
 
