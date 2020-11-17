@@ -1,5 +1,5 @@
 package org.wong.ioc;
 
-public interface ShowCmd {
+interface ShowCmd {
     String showCmd();
 }

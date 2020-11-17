@@ -1,9 +1,6 @@
 package org.wong.ioc;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.*;
 
 @Configuration
 public class JavaConfig {
@@ -11,7 +8,7 @@ public class JavaConfig {
     @Conditional(WindowsCondition.class)
     ShowCmd winCmd(){
         return new WindowsShowCmd();
-    }
+    }   
 
     @Bean("cmd")        // same name to allow @Condition to check which one to use.
     @Conditional(MacCondition.class)
@@ -21,6 +18,7 @@ public class JavaConfig {
 
     @Bean
     @Profile("dev")
+    @Scope("prototype")
     DataSource devOps() {
         DataSource ds = new DataSource();
         ds.setUrl("abc");

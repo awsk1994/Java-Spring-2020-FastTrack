@@ -854,6 +854,66 @@ public class TestProfile {
 DataSource{url='abc', username='do_uname', password='do_uname_pw'}
 ```
 
+## 14. Bean的作用域
 
+如果我们执行以下：
+```java
+AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+ctx.getEnvironment().setActiveProfiles("dev");  // Configured with @Scope("prototype")
+ctx.register(JavaConfig.class);
+ctx.refresh();
+DataSource d1 = ctx.getBean(DataSource.class);
+DataSource d2 = ctx.getBean(DataSource.class);
+System.out.println(d1 == d2);
+```
+```
+true
+```
+
+ - Solution is to set a Scope of "prototype".
+
+```java
+    @Bean
+    @Profile("dev")
+    @Scope("prototype")     // # Setting a scope. 
+    DataSource devOps() {
+        DataSource ds = new DataSource();
+        ds.setUrl("abc");
+        ds.setUsername("do_uname");
+        ds.setPassword("do_uname_pw");
+        return ds;
+    }
+```
+
+ - Test Code:
+
+ ```java
+AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+ctx.getEnvironment().setActiveProfiles("dev");  // Configured with @Scope("prototype")
+ctx.register(JavaConfig.class);
+ctx.refresh();
+DataSource d1 = ctx.getBean(DataSource.class);
+DataSource d2 = ctx.getBean(DataSource.class);
+System.out.println(d1 == d2);
+
+AnnotationConfigApplicationContext ctx2 = new AnnotationConfigApplicationContext();
+ctx2.getEnvironment().setActiveProfiles("prod");    // Configured w/o @Scope("prototype")
+ctx2.register(JavaConfig.class);
+ctx2.refresh();
+DataSource d3 = ctx2.getBean(DataSource.class);
+DataSource d4 = ctx2.getBean(DataSource.class);
+System.out.println(d3 == d4);
+```
+```
+false 
+true
+```
+
+ - Other types of scopes: singleton, prototype, request, session, global-session.
+     - https://www.tutorialspoint.com/spring/spring_bean_scopes.htm
+
+ - Skip xml version of implementing @scope.
+
+## 15. id和name的区别
 
 

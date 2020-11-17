@@ -1,7 +1,7 @@
 package org.wong.ioc;
 
 public class MacShowCmd implements ShowCmd {
-    public String showCmd() {
+    public String showCmd(){
         return "ls";
     }
 }
