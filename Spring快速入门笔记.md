@@ -1013,6 +1013,14 @@ System.out.println("user = " + (User) ctx2.getBean("user2"));
 user = User{username='wong2', id=2}
 ```
 
+## 17. Aware 接口
+
+ - Actually, don't really understand this part. 
+ - Using Aware interface makes us more coupled with the Spring framework, which is not good.
+ - Also, aware is not really used in production - so going to leave it for now.
+
+
+
 
 
 
