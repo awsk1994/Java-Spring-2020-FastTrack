@@ -1038,6 +1038,11 @@ user = User{username='wong2', id=2}
      - cglib
      - jdk
 
+## 18. 基于JDK动态代理实现的AOP
+ - Implemented proxy design pattern.
+
+ 
+
 
 
 
