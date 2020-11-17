@@ -915,5 +915,50 @@ true
  - Skip xml version of implementing @scope.
 
 ## 15. id和name的区别
+ - The only difference between an id and a name is that:
+     - a name can contain multiple aliases separated by a comma, semicolon or whitespace
+     - whereas, an id must be a single value.
+
+ - Example:
+```xml
+<!-- Example of id(someId) -->
+<bean class="org.wong.ioc.model.User" id="someId">
+    <property name="username" value="wong5"/>
+</bean>
+
+<!-- Example of name(someName) -->
+<bean class="org.wong.ioc.model.User" name="someName">
+    <property name="username" value="wong5"/>
+</bean>
+```
+
+ - We can create the instances using:
+
+```java
+User userById = ctx.getBean("someId")
+User userByName = ctx.getBean("someName");
+```
+
+ - But if we modify it to be:
+```xml
+<!-- Example of multiple id -->
+<bean class="org.wong.ioc.model.User" id="someId1,someId2">
+    <property name="username" value="wong5"/>
+</bean>
+
+<!-- Example of multiple name -->
+<bean class="org.wong.ioc.model.User" name="someName1,someName2">
+    <property name="username" value="wong5"/>
+</bean>
+```
+
+ - When we create using the following code, userById will not work.
+
+```java
+User userById = ctx.getBean("someId1")          // this will NOT WORK!
+User userByName = ctx.getBean("someName1");     // works.
+```
+
+
 
 
