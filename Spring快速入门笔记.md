@@ -1019,7 +1019,24 @@ user = User{username='wong2', id=2}
  - Using Aware interface makes us more coupled with the Spring framework, which is not good.
  - Also, aware is not really used in production - so going to leave it for now.
 
+## 18. AOP简介
 
+ - Very popular.
+ - AOP (Aspect Oriented Programming), 面向切面编程。
+ - AOP就是在程序运行时，不改变程序源代码的情况下，动态地增强方法的功能，常见的使用场景非常多：
+     - 日记
+     - 事务
+     - 数据库操作
+
+ - 基本概念：
+     - 切点：要添加代码的地方
+     - 通知（增强）：向切点动态添加代码
+     - 切面：切点+通知
+     - 连接点：切点的位子
+
+ - AOP的实现：
+     - cglib
+     - jdk
 
 
 
