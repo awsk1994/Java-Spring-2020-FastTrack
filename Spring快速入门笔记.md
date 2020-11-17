@@ -958,6 +958,63 @@ User userByName = ctx.getBean("someName");
 User userById = ctx.getBean("someId1")          // this will NOT WORK!
 User userByName = ctx.getBean("someName1");     // works.
 ```
+## 16. 混合配置
+
+ - We can use a JavaConfig class that uses a xml(applicationContext.xml). 
+ - We don't use this much in production though; choose either JavaConfig class or xml.
+
+ - Code below:
+
+```xml
+<!-- applicationContext.xml -->
+<?xml version = "1.0" encoding = "UTF-8"?>
+<beans xmlns = "http://www.springframework.org/schema/beans"
+       xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean class="org.wong.ioc.User" id="user2">
+        <property name="username" value="wong2"/>
+        <property name="id" value="2"/>
+    </bean>
+</beans>
+```
+
+```java
+// User class
+public class User {
+    String username;
+    int id;
+    // Getters & Setters
+}
+```
+
+```java
+// JavaConfig class
+package org.wong.ioc;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
+
+@Configuration
+@ImportResource("classpath:applicationContext.xml")
+public class JavaConfig2 {
+}
+```
+
+```java
+// Main method (testing)
+AnnotationConfigApplicationContext ctx2 = new AnnotationConfigApplicationContext(JavaConfig2.class);
+System.out.println("user = " + (User) ctx2.getBean("user2"));
+```
+
+ - Output:
+```
+user = User{username='wong2', id=2}
+```
+
+
+
 
 
 
