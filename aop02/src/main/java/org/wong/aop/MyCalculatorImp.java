@@ -11,7 +11,14 @@ public class MyCalculatorImp implements MyCalculator{
         return a-b;
     }
 
+    @Action
     public void min(int a, int b) {
         System.out.println("min | " + a + "-" + b + " = " + (a-b));
+    }
+
+    @Action
+    public int divide(int a, int b){
+        System.out.println("divide | " + a + ", " + b);
+        return a/b;
     }
 }

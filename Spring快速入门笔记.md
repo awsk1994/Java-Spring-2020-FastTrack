@@ -1050,6 +1050,7 @@ user = User{username='wong2', id=2}
      - 另一种使用规则来定义切点的方式，无侵入，一般推荐使用这种方式。
 
 我们引入Spring依赖
+
 ```xml
 <dependency>
     <groupId>org.aspectj</groupId>
@@ -1122,6 +1123,166 @@ add方法开始执行了。 // 在add方法之前，我们的通知执行了。
 add(3, 4)         // add方法执行。
 3-4 = -1          // min方法执行，但没有执行通知因为没有注解。
 ```
+
+## 21. AOP五种通知类型
+
+ - 前置通知
+     - 在method逻辑／代码之前执行
+ - 后知通知
+     - 在方法逻辑／代码之后执行
+ - 返回通知:
+     - 即有目标方法有返回的时候才会触发。
+     - 该注解中的returning属性表示目标方法返回值的变量名，这个需要和参数一一对应。
+     - 注意：目标方法的返回值类型要和这里方法返回值参数的类型一致，否侧拦截不到
+     - 如果拦截所有（包括回返值为void），则方法返回值参数可以为Object。
+ - 异常通知
+     - 当目标方法抛出异常时，该方法会被触发
+ - 环绕通知
+     - 是集大成者，可以用环绕通知实现上面的四个通知，这个方法的核心有点类似于在这里通过反射执行方法
+
+```java
+/**
+ * 前置通知；在method逻辑／代码之前执行
+ * @param joinPoint
+ */
+@Before("@annotation(Action)")  // To indicate to use this before the @Action
+public void before(JoinPoint joinPoint){
+    String name = joinPoint.getSignature().getName();
+    System.out.println(name + "方法开始执行了。(@Before)");
+}
+
+/**
+ * 后知通知；在方法逻辑／代码之后执行
+ * @param joinPoint
+ */
+@After("@annotation(Action)") //
+public void after(JoinPoint joinPoint){
+    String name = joinPoint.getSignature().getName();
+    System.out.println(name + "方法结束了。(@After)");
+}
+
+/**
+ * @@AfterReturning 表示这是一个返回通知，即有目标方法有返回的时候才会触发。
+ * 该注解中的returning属性表示目标方法返回值的变量名，这个需要和参数一一对应。
+ * 注意：目标方法的返回值类型要和这里方法返回值参数的类型一致，否侧拦截不到
+ * 如果拦截所有（包括回返值为void），则方法返回值参数可以为Object。
+ * @param joinPoint
+ * @param r
+ */
+@AfterReturning(value = "@annotation(Action)", returning = "r")
+public void afterReturning(JoinPoint joinPoint, Integer r){
+    String name = joinPoint.getSignature().getName();
+    System.out.println(name + "方法返回:" + r + "(@AfterReturning)");
+}
+
+/**
+ * 异常通知，当目标方法抛出异常时，该方法会被触发
+ * @param joinPoint
+ * @param e
+ */
+@AfterThrowing(value = "@annotation(Action)", throwing = "e")
+public void afterThrowing(JoinPoint joinPoint, Exception e){
+    String name = joinPoint.getSignature().getName();
+    System.out.println(name + "方法异常通知:" + e.getMessage());
+}
+
+/**
+ * 环绕通知
+ * 是集大成者，可以用环绕通知实现上面的四个通知，这个方法的核心有点类似于在这里通过反射执行方法
+ * @param pjp
+ * @return
+ */
+@Around("@annotation(Action)")
+public Object around(ProceedingJoinPoint pjp){
+    Object proceed = null;
+    try{
+        proceed = pjp.proceed();
+    } catch(Throwable throwable){
+        throwable.printStackTrace();
+    }
+    return proceed;
+};
+```
+
+```java
+@Action // 侵入型，不建议用
+public int add(int a, int b) {
+    System.out.println("add(" + a + ", " + b + ")");
+    return a-b;
+}
+
+@Action
+public void min(int a, int b) {
+    System.out.println("min | " + a + "-" + b + " = " + (a-b));
+}
+
+@Action
+public int divide(int a, int b){
+    System.out.println("divide(" + a + ", " + b + ")");
+    return a/b;
+}
+```
+
+```java
+// Main method.
+AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(JavaConfig.class);
+MyCalculator calculator = ctx.getBean(MyCalculator.class);
+calculator.add(3,4);
+calculator.min(3,4);
+calculator.divide(1,0);
+```
+
+```
+add方法开始执行了。(@Before)
+add(3, 4)
+add方法结束了。(@After)
+add方法返回:-1(@AfterReturning)
+
+min方法开始执行了。(@Before)
+min | 3-4 = -1
+min方法结束了。(@After)
+
+divide方法开始执行了。(@Before)
+divide | 1, 0
+divide方法结束了。(@After)
+divide方法返回:null(@AfterReturning)
+java.lang.ArithmeticException: / by zero
+```
+
+ - 为了看到 环绕通知 的效果：
+```java
+@Around("@annotation(Action)")
+public Object around(ProceedingJoinPoint pjp){
+    Object proceed = null;
+    try{
+        proceed = pjp.proceed();
+    } catch(Throwable throwable){
+        throwable.printStackTrace();
+    }
+    return 99;      // 注意这里！
+};
+```
+
+```
+...
+add方法返回:99(@AfterReturning)     <- 都返回99
+...
+min方法返回:99(@AfterReturning)
+...
+divide方法返回:99(@AfterReturning)
+```
+
+## 
+
+
+
+
+
+
+
+
+
+
 
 
 

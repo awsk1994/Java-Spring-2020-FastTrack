@@ -10,5 +10,6 @@ public class Main {
         MyCalculator calculator = ctx.getBean(MyCalculator.class);
         calculator.add(3,4);
         calculator.min(3,4);
+        calculator.divide(1,0);
     }
 }
