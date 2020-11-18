@@ -1038,11 +1038,90 @@ user = User{username='wong2', id=2}
      - cglib
      - jdk
 
-## 18. 基于JDK动态代理实现的AOP
+## 19. 基于JDK动态代理实现的AOP
  - Implemented proxy design pattern.
 
- 
+## 20. AOP 初体验
+ - 这里介绍两种**切点的定义方式**：
+     - 使用自定义注解
+     - 使用规则
+ - 总结
+     - 其中，使用自定义注解标记切点，是侵入式的，所以这种方式在实际开发中不推荐，仅作为了解
+     - 另一种使用规则来定义切点的方式，无侵入，一般推荐使用这种方式。
 
+我们引入Spring依赖
+```xml
+<dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjweaver</artifactId>
+    <version>1.9.5</version>
+</dependency>
+<dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjrt</artifactId>
+    <version>1.9.5</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context</artifactId>
+    <version>5.2.6.RELEASE</version>
+</dependency>
+```
+
+**自定义注解**
+
+首先自定义一个注解：
+
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Action {
+}
+```
+
+然后在需要拦截的方法上，添加该注解，在add 方法上添加了@Action 注解，表示该方法将会被AOP 拦截，而其他未添加该注解的方法则不受影响。
+```java
+@Component
+public class MyCalculatorImp implements MyCalculator{
+    @Action // 侵入型，不建议用
+    public int add(int a, int b) {
+        System.out.println("add(" + a + ", " + b + ")");
+        return a-b;
+    }
+
+    public void min(int a, int b) {
+        System.out.println("min | " + a + "-" + b + " = " + (a-b));
+    }
+}
+```
+
+接下来，定义增强（通知，advice）
+```java
+public class LogAspect {
+    /**
+     * 前置通知；在method逻辑／代码之前的
+     * @param joinPoint
+     */
+    @Before("@annotation(Action)")  // To indicate to use this before the @Action
+    public void before(JoinPoint joinPoint){
+        String name = joinPoint.getSignature().getName();
+        System.out.println(name + "方法开始执行了。");
+    }
+}
+```
+
+运行一下：
+```java
+AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(JavaConfig.class);
+MyCalculator calculator = ctx.getBean(MyCalculator.class);
+calculator.add(3,4);
+calculator.min(3,4);
+```
+```
+add方法开始执行了。 // 在add方法之前，我们的通知执行了。
+add(3, 4)         // add方法执行。
+3-4 = -1          // min方法执行，但没有执行通知因为没有注解。
+```
 
 
 
