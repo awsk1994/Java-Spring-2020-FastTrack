@@ -1272,18 +1272,56 @@ min方法返回:99(@AfterReturning)
 divide方法返回:99(@AfterReturning)
 ```
 
-## 
+## 22. 方法中统一定义切点
 
+```java
+@Pointcut("@annotation(Action)")
+public void pointCut(){
+}
 
+@Before("pointCut()")  // Change the string in @Before
+public void before(JoinPoint joinPoint){...}
 
+@After("pointCut()")  // Change the string in @Before
+public void before(JoinPoint joinPoint){...}
 
+...do the same for @AfterReturning, @AfterThrowing and @Around.
+```
 
+## 23. 非侵入式定义切点
 
+```java
+/**
+ * 可以统一定义切点
+ * 第一个 * 表示要拦截的目标方法的返回值类型
+ * 第二个 * 表示包中的任意类
+ * 第三个 * 表示类中的任意方法
+ * 最后两个点表示方法参数任意，个数任意，类型任意
+ */
+@Pointcut("execution(* org.wong.aop.service.*.*(..))")  // Modified this line.
+public void pointCut(){
+}
 
+@Before("pointCut()")
+public void before(JoinPoint joinPoint){...}
+```
 
+```java
+//    @Action // 侵入型，不建议用           // We comment this line
+public int add(int a, int b) {
+    System.out.println("add(" + a + ", " + b + ")");
+    return a-b;
+}
+```
+ - Now, we can comment away @Action, and the PointCut will still work.
 
-
-
+```
+add方法开始执行了。(@Before)
+add(3, 4)
+add方法结束了。(@After)
+add方法返回:-1(@AfterReturning)
+...
+```
 
 
 

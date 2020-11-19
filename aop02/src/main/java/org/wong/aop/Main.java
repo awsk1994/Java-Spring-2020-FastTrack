@@ -1,8 +1,7 @@
 package org.wong.aop;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
-import java.lang.annotation.Annotation;
+import org.wong.aop.service.MyCalculator;
 
 public class Main {
     public static void main(String[] args) {

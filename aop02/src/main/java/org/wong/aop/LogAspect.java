@@ -9,11 +9,23 @@ import org.springframework.stereotype.Component;
 @Aspect
 // 表示这是一个切面
 public class LogAspect {
+
+    /**
+     * 可以统一定义切点
+     * 第一个 * 表示要拦截的目标方法的返回值类型
+     * 第二个 * 表示包中的任意类
+     * 第三个 * 表示类中的任意方法
+     * 最后两个点表示方法参数任意，个数任意，类型任意
+     */
+    @Pointcut("execution(* org.wong.aop.service.*.*(..))")
+    public void pointCut(){
+    }
+
     /**
      * 前置通知；在method逻辑／代码之前执行
      * @param joinPoint
      */
-    @Before("@annotation(Action)")  // To indicate to use this before the @Action
+    @Before("pointCut()")  // To indicate to use this before the @Action
     public void before(JoinPoint joinPoint){
         String name = joinPoint.getSignature().getName();
         System.out.println(name + "方法开始执行了。(@Before)");
@@ -23,7 +35,7 @@ public class LogAspect {
      * 后知通知；在方法逻辑／代码之后执行
      * @param joinPoint
      */
-    @After("@annotation(Action)") //
+    @After("pointCut()") //
     public void after(JoinPoint joinPoint){
         String name = joinPoint.getSignature().getName();
         System.out.println(name + "方法结束了。(@After)");
@@ -37,7 +49,7 @@ public class LogAspect {
      * @param joinPoint
      * @param r
      */
-    @AfterReturning(value = "@annotation(Action)", returning = "r")
+    @AfterReturning(value = "pointCut()", returning = "r")
     public void afterReturning(JoinPoint joinPoint, Integer r){
         String name = joinPoint.getSignature().getName();
         System.out.println(name + "方法返回:" + r + "(@AfterReturning)");
@@ -48,7 +60,7 @@ public class LogAspect {
      * @param joinPoint
      * @param e
      */
-    @AfterThrowing(value = "@annotation(Action)", throwing = "e")
+    @AfterThrowing(value = "pointCut()", throwing = "e")
     public void afterThrowing(JoinPoint joinPoint, Exception e){
         String name = joinPoint.getSignature().getName();
         System.out.println(name + "方法异常通知:" + e.getMessage());
@@ -60,7 +72,7 @@ public class LogAspect {
      * @param pjp
      * @return
      */
-    @Around("@annotation(Action)")
+    @Around("pointCut()")
     public Object around(ProceedingJoinPoint pjp){
         Object proceed = null;
         try{

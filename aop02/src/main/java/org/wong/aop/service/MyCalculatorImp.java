@@ -1,22 +1,22 @@
-package org.wong.aop;
+package org.wong.aop.service;
 
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
+import org.wong.aop.Action;
 
 @Component
 public class MyCalculatorImp implements MyCalculator{
-    @Action // 侵入型，不建议用
+//    @Action // 侵入型，不建议用
     public int add(int a, int b) {
         System.out.println("add(" + a + ", " + b + ")");
         return a-b;
     }
 
-    @Action
+//    @Action
     public void min(int a, int b) {
         System.out.println("min | " + a + "-" + b + " = " + (a-b));
     }
 
-    @Action
+//    @Action
     public int divide(int a, int b){
         System.out.println("divide | " + a + ", " + b);
         return a/b;

@@ -1,4 +1,4 @@
-package org.wong.aop;
+package org.wong.aop.service;
 
 public interface MyCalculator {
     int add(int a, int b);
