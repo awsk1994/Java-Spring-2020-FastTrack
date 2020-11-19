@@ -1323,6 +1323,61 @@ add方法返回:-1(@AfterReturning)
 ...
 ```
 
+## 24. XML配置AOP
+
+ - 我们复制 LogAspect class，然后把所有注解和@PointCut都去掉。
+```java
+// 表示这是一个切面
+public class LogAspectXml {
+    public void before(JoinPoint joinPoint){...}
+    public void after(JoinPoint joinPoint){...}
+    public void afterReturning(JoinPoint joinPoint, Integer r){...}
+    public void afterThrowing(JoinPoint joinPoint, Exception e){...}
+    public Object around(ProceedingJoinPoint pjp){...}
+}
+```
+ - 去掉的注解和@PointCut可以用xml来define
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns = "http://www.springframework.org/schema/beans"
+       xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop = "http://www.springframework.org/schema/aop"
+       xsi:schemaLocation = "http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+    <bean class="org.wong.aop.LogAspectXml" id="logAspectXml"/>             <!--Reference logAspectXml-->
+    <bean class="org.wong.aop.service.MyCalculatorImp" id="myCalcImp"/>     <!--Create myCalcImp beans-->
+
+    <aop:config proxy-target-class="true"> <!--https://stackoverflow.com/questions/35541809/bean-autowiring-not-working-after-spring-aop-->
+        <aop:pointcut id="pointcut" expression="execution(* org.wong.aop.service.*.*(..))"/>    <!--Create @PointCut-->
+        <aop:aspect ref="logAspectXml">
+            <aop:after method="after" pointcut-ref="pointcut"/>                                 <!--@After-->
+            <aop:before method="before" pointcut-ref="pointcut"/>                               <!--@Before-->
+            <aop:after-returning method="afterReturning" returning="r" pointcut-ref="pointcut"/><!--@AfterReturning-->
+            <aop:after-throwing method="afterThrowing" throwing="e" pointcut-ref="pointcut"/>   <!--@AfterThrowing-->
+            <aop:around method="around" pointcut-ref="pointcut"/>                               <!--@Around-->
+        </aop:aspect>
+    </aop:config>
+</beans>
+```
+
+ - Testing it:
+ 
+```java
+ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+MyCalculator calculator = ctx.getBean(MyCalculatorImp.class);
+calculator.add(3,4);
+calculator.min(3,4);
+calculator.divide(1,0);
+```
+
+
+
+
+
 
 
 
