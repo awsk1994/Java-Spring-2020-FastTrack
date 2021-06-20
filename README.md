@@ -1,4 +1,4 @@
-# Spring-2020-FastTrack
+# Java-Spring-2020-FastTrack
 
 Tutorial: https://www.bilibili.com/video/BV1Wv41167TU?p=16
 
